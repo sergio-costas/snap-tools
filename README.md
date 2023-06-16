@@ -1,0 +1,18 @@
+# SNAP TOOLS
+
+This is a set of tools useful to be used inside snapcraft.yaml to
+simplify the process of snapping applications. Just add them in your
+*parts* with:
+
+    snaptools:
+      source: XXXXXX
+      source-depth: 1
+      plugin: nil
+
+Once you have it, you can use any tool from any other part. For example,
+to call *set_python_runtime.py* to ensure that all python scripts in the
+final stage begin with the *#!/usr/bin/env python3* shebang, just do:
+
+    $CRAFT_PART_SRC/../../snaptools/set_python_runtime/set_python_runtime.py $CRAFT_STAGE
+
+Each tool has its own README.md explaining how to use it.
