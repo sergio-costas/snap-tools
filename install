@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -z $1 ]; then
+    FINAL_FOLDER=$CRAFT_PROJECT_DIR/snaptools
+else
+    FINAL_FOLDER=$CRAFT_PROJECT_DIR/$1
+fi
+
+mkdir -p $FINAL_FOLDER
+for ITEM in set_python_runtime remove_common; do
+    cp $CRAFT_PART_SRC/$ITEM/$ITEM.py $FINAL_FOLDER/
+done
