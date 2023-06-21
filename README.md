@@ -1,4 +1,4 @@
-# SNAP TOOLS
+# SNAP BUILD TOOLS
 
 This is a set of tools useful to be used inside snapcraft.yaml to
 simplify the process of snapping applications. Just add them in your
