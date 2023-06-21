@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -z $1 ]; then
-    FINAL_FOLDER=$CRAFT_PROJECT_DIR/snaptools
+    FINAL_FOLDER=$CRAFT_PROJECT_DIR/snapbuildtools
 else
     FINAL_FOLDER=$CRAFT_PROJECT_DIR/$1
 fi
