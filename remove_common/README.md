@@ -1,0 +1,71 @@
+# Remove common files in snaps
+
+This script searches the files installed with the "stage-packages:" statement
+and removes all those that are already available in other base snaps (like
+core20/core22, or gnome-XX...).
+
+## But... why?
+
+When a .deb package is installed because it is listed in the "stage-packages"
+statement, all their dependencies are installed too. This means that, in a
+lot of cases, there will be a lot of files duplicated between the snap and the
+base snaps (like core22, or gnome-42-2204).
+
+For example, let's say that our snap installs the stage package X; but that
+package depends on package Y, and this later also depends on Z. This means that
+X, Y and Z will be installed in our stage.
+
+Now, if, let's say, the core22 snap already contains the Z package, that
+means that the files contained in Z will be duplicated in both our snap and
+core22.
+
+Or if gnome-42-2204 already contains the Y package (and, thus, also the Z one),
+that means that the files contained in Y and Z will be duplicated in both our
+snap and gnome-42-2204.
+
+The result is that we have duplicated files in our snap; files that aren't
+needed and that occupy precious space. This is what this script solves.
+
+## How to use it
+
+Let's say that we have this part:
+
+    parts:
+      [...]
+
+      mypreciouspart:
+        source: ...
+        stage-packages:
+          - package1
+          - package2
+          - package3
+        ...
+
+To use this script, just change it to:
+
+    parts:
+      [...]
+
+      mypreciouspart:
+        source: ...
+        stage-packages:
+          - package1
+          - package2
+          - package3
+        ...
+        build-snaps: [core22, gtk-common-themes, gnome-42-2204]
+        override-build: |
+          $CRAFT_PROJECT_DIR/snaptools/remove_common.py core22 gtk-common-themes gnome-42-2204
+          craftctl default
+
+This will remove all the files installed from package1, package2,... that are already
+available in core22, gtk-common-themes and gnome-42-2204.
+
+If you are already using *override-build*, just add
+
+    $CRAFT_PROJECT_DIR/snaptools/remove_common.py core22 gtk-common-themes gnome-42-2204
+
+as the first command.
+
+Of course, if you snap uses core20 and/or gnome-3-38-2004, or others, you have to replace
+them in the lists.
