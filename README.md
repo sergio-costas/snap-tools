@@ -4,13 +4,19 @@ This is a set of tools useful to be used inside snapcraft.yaml to
 simplify the process of snapping applications. Just add them in your
 *parts* with:
 
-      snaptools:
+      snapbuildtools:
         source: https://github.com/rastersoft/snap-build-tools.git
         source-depth: 1
         plugin: nil
         override-pull: |
           craftctl default
           $CRAFT_PART_SRC/install
+
+and ensure that all the other parts in your system have an
+
+    after: [snapbuildtools]
+
+into them.
 
 Once you have it, you can use any tool from any other part. For example,
 to call *set_python_runtime.py* to ensure that all python scripts in the
