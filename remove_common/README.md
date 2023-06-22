@@ -2,9 +2,10 @@
 
 This script searches the files installed with the "stage-packages:" statement
 and removes all those that are already available in other base snaps (like
-core20/core22, or gnome-XX...).
+core20/core22, or gnome-XX...). This allows to greatly reduce the final size
+of the snap.
 
-## But... why?
+## Rationale
 
 When a .deb package is installed because it is listed in the "stage-packages"
 statement, all their dependencies are installed too. This means that, in a
@@ -25,6 +26,45 @@ snap and gnome-42-2204.
 
 The result is that we have duplicated files in our snap; files that aren't
 needed and that occupy precious space. This is what this script solves.
+
+Previously, a bash script like this one was used for this task:
+
+    build-snaps: [core22, gtk-common-themes, gnome-42-2204]
+    override-prime: |
+      set -eux
+      for snap in "core22" "gtk-common-themes" "gnome-42-2204"; do
+        cd "/snap/$snap/current" && find . -type f,l -name *.so.* -exec rm -f "$CRAFT_PRIME/{}" \;
+      done
+
+This script has several flaws:
+
+* It searches all the base snaps (core22, gtk-common-themes and gnome-42-2204)
+  to check if there is a duplicate file in PRIME. This is very slow because it
+  has to search for a lot of files (about 14 thousands in core22, 20 thousands
+  in gnome-42-2204, and 76 thousands in gtk-common-themes)  and execute a rm
+  command for each matching file.
+* It is executed at the end of the staging process, after all the parts of the
+  snap have been built and staged. This means that it can delete accidentally
+  files that were overwritten during the building, thus removing the new and
+  desired versions and using the old ones (for example, if the snap compiles a
+  more recent version of a library shipped in core or gnome-contents snaps, but
+  with the same major version).
+* It only searches for duplicated library files, but don’t remove other duplicate
+  files, like documentation, icons...
+
+This python script, instead, is run after the stage .deb packages have been
+installed in CRAFT_PART_INSTALL, but before the part has been built. This allows
+to safely remove any duplicate files without risking to delete something created
+by the part. Also, it searches in the oposite way: checks each file in
+CRAFT_PART_INSTALL to see if it exists in any of the specified base snaps, which
+is much faster because the number of files is smaller. Also, it does any deletion
+in-script, instead of calling an external program ('rm' in the old script), which
+is always slower because it has to launch a new process, read and link the
+binary... Thanks to these two changes, now it is possible to search for all the
+duplicate files (not only libraries) and remove them safely.
+
+The only inconvenient of this script is that it must be run in all and each part
+that installs stage packages.
 
 ## How to use it
 
@@ -71,3 +111,6 @@ as the first command.
 
 Of course, if you snap uses core20 and/or gnome-3-38-2004, or others, you have to replace
 them in the lists.
+
+Remember to add this in *each* part that has *stage-packages*. Parts without stage
+packages don't need this.
