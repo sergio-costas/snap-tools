@@ -5,7 +5,7 @@ simplify the process of snapping applications. Just add them in your
 *parts* with:
 
       snapbuildtools:
-        source: https://github.com/rastersoft/snap-build-tools.git
+        source: https://github.com/sergio-costas/snap-build-tools.git
         source-depth: 1
         plugin: nil
         override-pull: |
@@ -16,7 +16,7 @@ and ensure that all the other parts in your system have an
 
     after: [snapbuildtools]
 
-into them.
+into them to ensure that this is installed before any other part.
 
 Once you have it, you can use any tool from any other part. For example,
 to call *set_python_runtime.py* to ensure that all python scripts in the
