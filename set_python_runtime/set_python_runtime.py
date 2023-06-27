@@ -24,10 +24,16 @@ for full_file_path in glob.glob(os.path.join(BASE_PATH, "**/*"), recursive=True)
     first_line = content[0].strip()
     if (not first_line.endswith("python") and
             not first_line.endswith("python2") and
+            not first_line.endswith("python2.7") and
             not first_line.endswith("python3")):
         continue
     with open(full_file_path, "w", encoding='utf-8') as file_data:
-        file_data.write("#!/usr/bin/env python3\n")
+        if first_line.endswith("python2"):
+            file_data.write("#!/usr/bin/env python2\n")
+        elif first_line.endswith("python2.7"):
+            file_data.write("#!/usr/bin/env python2.7\n")
+        else:
+            file_data.write("#!/usr/bin/env python3\n")
         for line in content[1:]:
             file_data.write(line)
         print(f"Fixing file {full_file_path}")
