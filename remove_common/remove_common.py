@@ -22,6 +22,7 @@ def check_if_exists(folder_list, relative_file_path):
 
 def main(base_folder, folder_list, verbose=False):
     """ Main function """
+    duplicated_bytes = 0
     for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
         if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
             continue
@@ -29,9 +30,12 @@ def main(base_folder, folder_list, verbose=False):
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
         if check_if_exists(folder_list, relative_file_path):
+            if os.path.isfile(full_file_path):
+                duplicated_bytes += os.stat(full_file_path).st_size
             os.remove(full_file_path)
             if verbose:
                 print(f"Removing duplicated file {relative_file_path}")
+    print(f"Removed {duplicated_bytes} bytes in duplicated files")
 
 
 if __name__ == "__main__":
