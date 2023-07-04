@@ -113,4 +113,6 @@ Of course, if you snap uses core20 and/or gnome-3-38-2004, or others, you have t
 them in the lists.
 
 Remember to add this in *each* part that has *stage-packages*. Parts without stage
-packages don't need this.
+packages don't need this. The "build-snaps" statement only needs to be put once, so it's better
+to put it in the *snapbuildtools* part (the one added at the beginning for installing these
+tools).
