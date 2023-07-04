@@ -9,15 +9,15 @@
 import sys
 import os
 import glob
-
+import filecmp
 
 def check_if_exists(folder_list, relative_file_path):
     """ Checks if an specific file does exist in any of the base paths"""
     for folder in folder_list:
         check_path = os.path.join(folder, relative_file_path)
         if os.path.exists(check_path):
-            return True
-    return False
+            return check_path
+    return None
 
 
 def main(base_folder, folder_list, verbose=False):
@@ -29,7 +29,10 @@ def main(base_folder, folder_list, verbose=False):
         relative_file_path = full_file_path[len(base_folder):]
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
-        if check_if_exists(folder_list, relative_file_path):
+        found_file = check_if_exists(folder_list, relative_file_path)
+        if found_file is not None:
+            if not filecmp.cmp(full_file_path, found_file):
+                continue
             if os.path.isfile(full_file_path):
                 duplicated_bytes += os.stat(full_file_path).st_size
             os.remove(full_file_path)
@@ -46,10 +49,9 @@ if __name__ == "__main__":
     if params[0] == '-v':
         params = params[1:]
         VERBOSE = True
-    folders.append(os.environ["CRAFT_STAGE"])
     for snap in sys.argv[1:]:
         folders.append(f"/snap/{snap}/current")
 
-    install_folder = os.environ["CRAFT_PART_INSTALL"]
+    install_folder = os.environ["CRAFT_PRIME"]
 
     main(install_folder, folders, VERBOSE)
