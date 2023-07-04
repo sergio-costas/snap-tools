@@ -24,7 +24,7 @@ def main(base_folder, folder_list, verbose=False):
     """ Main function """
     duplicated_bytes = 0
     for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
-        if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
+        if not os.path.isfile(full_file_path):
             continue
         relative_file_path = full_file_path[len(base_folder):]
         if relative_file_path[0] == '/':
