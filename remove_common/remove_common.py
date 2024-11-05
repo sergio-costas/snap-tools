@@ -36,8 +36,12 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
         if relative_file_path in exclude_list:
+            if verbose:
+                print(f"Excluding {relative_file_path}")
             continue
         if os.path.split(relative_file_path)[0] in exclude_list:
+            if verbose:
+                print(f"Excluding {relative_file_path}")
             continue
         if check_if_exists(folder_list, relative_file_path):
             if os.path.isfile(full_file_path):
