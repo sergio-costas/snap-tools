@@ -9,7 +9,13 @@
 import sys
 import os
 import glob
+import argparse
 
+parser = argparse.ArgumentParser(prog="remove_common", description="An utility to remove from snaps files that are already available in extensions")
+parser.add_argument('extensions', nargs='+')
+parser.add_argument('-e', '--exclude', help="A list of file and folders to exclude from checking")
+parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
+args = parser.parse_args()
 
 def check_if_exists(folder_list, relative_file_path):
     """ Checks if an specific file does exist in any of the base paths"""
@@ -20,7 +26,7 @@ def check_if_exists(folder_list, relative_file_path):
     return False
 
 
-def main(base_folder, folder_list, verbose=False):
+def main(base_folder, folder_list, exclude_list, verbose=False):
     """ Main function """
     duplicated_bytes = 0
     for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
@@ -29,6 +35,10 @@ def main(base_folder, folder_list, verbose=False):
         relative_file_path = full_file_path[len(base_folder):]
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
+        if relative_file_path in exclude_list:
+            continue
+        if os.path.split(relative_file_path)[0] in exclude_list:
+            continue
         if check_if_exists(folder_list, relative_file_path):
             if os.path.isfile(full_file_path):
                 duplicated_bytes += os.stat(full_file_path).st_size
@@ -41,15 +51,13 @@ def main(base_folder, folder_list, verbose=False):
 if __name__ == "__main__":
     folders = []
 
-    VERBOSE = False
-    params = sys.argv[1:]
-    if params[0] == '-v':
-        params = params[1:]
-        VERBOSE = True
+    VERBOSE = args.verbose
+    exclude = args.exclude
+
     folders.append(os.environ["CRAFT_STAGE"])
-    for snap in sys.argv[1:]:
+    for snap in args.extensions:
         folders.append(f"/snap/{snap}/current")
 
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
-    main(install_folder, folders, VERBOSE)
+    main(install_folder, folders, exclude, VERBOSE)

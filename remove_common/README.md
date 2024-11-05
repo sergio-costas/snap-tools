@@ -55,7 +55,7 @@ This script has several flaws:
 This python script, instead, is run after the stage .deb packages have been
 installed in CRAFT_PART_INSTALL, but before the part has been built. This allows
 to safely remove any duplicate files without risking to delete something created
-by the part. Also, it searches in the oposite way: checks each file in
+by the part. Also, it searches in the opposite way: checks each file in
 CRAFT_PART_INSTALL to see if it exists in any of the specified base snaps, which
 is much faster because the number of files is smaller. Also, it does any deletion
 in-script, instead of calling an external program ('rm' in the old script), which
