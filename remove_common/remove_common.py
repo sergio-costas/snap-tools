@@ -13,7 +13,7 @@ import argparse
 
 parser = argparse.ArgumentParser(prog="remove_common", description="An utility to remove from snaps files that are already available in extensions")
 parser.add_argument('extensions', nargs='+')
-parser.add_argument('-e', '--exclude', help="A list of file and folders to exclude from checking")
+parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folders to exclude from checking")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 args = parser.parse_args()
 
