@@ -112,6 +112,9 @@ as the first command.
 Of course, if you snap uses core20 and/or gnome-3-38-2004, or others, you have to replace
 them in the lists.
 
+You can also add the *-v* argument to have *verbose* output of which files are being removed.
+Also, it is possible to add *-e path1 path2 ...* to exclude several paths from being checked.
+
 Remember to add this in *each* part that has *stage-packages*. Parts without stage
 packages don't need this. The "build-snaps" statement only needs to be put once, so it's better
 to put it in the *snapbuildtools* part (the one added at the beginning for installing these
