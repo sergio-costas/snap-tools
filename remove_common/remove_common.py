@@ -57,6 +57,8 @@ if __name__ == "__main__":
 
     VERBOSE = args.verbose
     exclude = args.exclude
+    if exclude is None:
+        exclude = []
 
     folders.append(os.environ["CRAFT_STAGE"])
     for snap in args.extensions:
