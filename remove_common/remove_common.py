@@ -82,11 +82,19 @@ if __name__ == "__main__":
             sys.exit(1)
         with open(snapcraft_file, "r") as snapcraft_stream:
             snapcraft_data = yaml.load(snapcraft_stream, Loader=yaml.Loader)
-        part_data = snapcraft_data["parts"][os.environ['CRAFT_PART_NAME']]
-        if "build-snaps" not in part_data:
+        parts_data = snapcraft_data["parts"]
+        extensions = []
+        for part_name in parts_data:
+            part_data = parts_data[part_name]
+            if "build-snaps" not in part_data:
+                continue
+            for extension in part_data["build-snaps"]:
+                if extension not in extensions:
+                    extensions.append(extension)
+
+        if len(extensions) == 0:
             print("Called remove_common.py without a list of snaps, and no 'build-snaps' entry in the snapcraft.yaml file. Aborting.")
             sys.exit(1)
-        extensions = part_data["build-snaps"]
 
     if verbose:
         print(f"Removing duplicates already in {extensions}")
