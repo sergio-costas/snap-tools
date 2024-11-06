@@ -32,6 +32,8 @@ Just add this in your *parts*:
         source: https://github.com/sergio-costas/snap-build-tools.git
         source-depth: 1
         plugin: nil
+        build-packages:
+          - python3-yaml
         override-pull: |
           craftctl default
           $CRAFT_PART_SRC/install
