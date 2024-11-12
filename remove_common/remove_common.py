@@ -10,12 +10,26 @@ import sys
 import os
 import glob
 import argparse
+try:
+    import yaml
+except:
+    print("YAML module not found. Please, add 'python3-yaml' to the 'build-packages' list.")
+    pass
 
 parser = argparse.ArgumentParser(prog="remove_common", description="An utility to remove from snaps files that are already available in extensions")
-parser.add_argument('extensions', nargs='+')
+parser.add_argument('extension', nargs='*', default=None)
 parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folders to exclude from checking")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 args = parser.parse_args()
+
+def get_snapcraft_yaml():
+    base_folder = os.environ['CRAFT_PROJECT_DIR']
+    snapcraft_file_path = os.path.join(base_folder, "snapcraft.yaml")
+    if not os.path.exists(snapcraft_file_path):
+        snapcraft_file_path = os.path.join(base_folder, "snap", "snapcraft.yaml")
+        if not os.path.exists(snapcraft_file_path):
+            return None
+    return snapcraft_file_path
 
 def check_if_exists(folder_list, relative_file_path):
     """ Checks if an specific file does exist in any of the base paths"""
@@ -55,15 +69,39 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
 if __name__ == "__main__":
     folders = []
 
-    VERBOSE = args.verbose
+    verbose = args.verbose
     exclude = args.exclude
+    extensions = args.extension
     if exclude is None:
         exclude = []
+    if len(extensions) == 0:
+        # get the extensions from the snapcraft file
+        snapcraft_file = get_snapcraft_yaml()
+        if snapcraft_file is None:
+            print("Failed to get the snapcraft.yaml file. Aborting")
+            sys.exit(1)
+        with open(snapcraft_file, "r") as snapcraft_stream:
+            snapcraft_data = yaml.load(snapcraft_stream, Loader=yaml.Loader)
+        parts_data = snapcraft_data["parts"]
+        extensions = []
+        for part_name in parts_data:
+            part_data = parts_data[part_name]
+            if "build-snaps" not in part_data:
+                continue
+            for extension in part_data["build-snaps"]:
+                if extension not in extensions:
+                    extensions.append(extension)
 
+        if len(extensions) == 0:
+            print("Called remove_common.py without a list of snaps, and no 'build-snaps' entry in the snapcraft.yaml file. Aborting.")
+            sys.exit(1)
+
+    if verbose:
+        print(f"Removing duplicates already in {extensions}")
     folders.append(os.environ["CRAFT_STAGE"])
-    for snap in args.extensions:
+    for snap in extensions:
         folders.append(f"/snap/{snap}/current")
 
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
-    main(install_folder, folders, exclude, VERBOSE)
+    main(install_folder, folders, exclude, verbose)
