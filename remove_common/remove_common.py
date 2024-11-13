@@ -10,6 +10,7 @@ import sys
 import os
 import glob
 import argparse
+import fnmatch
 try:
     import yaml
 except:
@@ -22,6 +23,8 @@ parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folde
 parser.add_argument('-m', '--map', nargs='+', help="A list of snap_name:path pairs")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 args = parser.parse_args()
+
+global_excludes = ['usr/share/icons/*/index.theme']
 
 def get_snapcraft_yaml():
     base_folder = os.environ['CRAFT_PROJECT_DIR']
@@ -47,6 +50,9 @@ def check_if_exists(folder_list, relative_file_path):
 
 def main(base_folder, folder_list, exclude_list, verbose=False):
     """ Main function """
+
+    global global_excludes
+
     duplicated_bytes = 0
     for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
         if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
@@ -54,6 +60,10 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
         relative_file_path = full_file_path[len(base_folder):]
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
+        for exclude in global_excludes:
+            if fnmatch.fnmatch(relative_file_path, exclude):
+                print(f"Excluding {relative_file_path} with rule {exclude}")
+                continue
         if relative_file_path in exclude_list:
             if verbose:
                 print(f"Excluding {relative_file_path}")
