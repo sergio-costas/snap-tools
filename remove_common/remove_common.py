@@ -35,13 +35,10 @@ def get_snapcraft_yaml():
 def check_if_exists(folder_list, relative_file_path):
     """ Checks if an specific file does exist in any of the base paths"""
     for folder, map_path in folder_list:
-        print(f"Comparing {relative_file_path} in {folder} with {map_path}", end="")
         if (map_path is not None) and relative_file_path.startswith(map_path):
             relative_file_path2 = relative_file_path[len(map_path):]
-            print(f"; relative_file_path changed to {relative_file_path}", end="")
         else:
             relative_file_path2 = relative_file_path
-        print()
         check_path = os.path.join(folder, relative_file_path2)
         if os.path.exists(check_path):
             return True
@@ -131,7 +128,6 @@ if __name__ == "__main__":
         map_path = mapping[snap] if snap in mapping else None
         folders.append((path, map_path))
 
-    print(folders)
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
     main(install_folder, folders, exclude, verbose)
