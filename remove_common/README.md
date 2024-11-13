@@ -112,7 +112,7 @@ as the first command.
 Of course, if you snap uses core20 and/or gnome-3-38-2004, or others, you have to replace
 them in the lists.
 
-By default, teh script will scan the *snapcraft.yaml* file for all the *build-snaps*
+By default, the script will scan the *snapcraft.yaml* file for all the *build-snaps*
 entries in it, but it is possible to override this by manually putting the list of snaps
 in the command line (this is a must to preserve compatibility with the old behavior).
 

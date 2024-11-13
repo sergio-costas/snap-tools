@@ -19,6 +19,7 @@ except:
 parser = argparse.ArgumentParser(prog="remove_common", description="An utility to remove from snaps files that are already available in extensions")
 parser.add_argument('extension', nargs='*', default=None)
 parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folders to exclude from checking")
+parser.add_argument('-m', '--map', nargs='+', help="A list of snap_name:path pairs")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 args = parser.parse_args()
 
@@ -33,8 +34,11 @@ def get_snapcraft_yaml():
 
 def check_if_exists(folder_list, relative_file_path):
     """ Checks if an specific file does exist in any of the base paths"""
-    for folder in folder_list:
-        check_path = os.path.join(folder, relative_file_path)
+    for folder, map_path in folder_list:
+        if map_path is None:
+            check_path = os.path.join(folder, relative_file_path)
+        else:
+            check_path = os.path.join(folder, map_path, relative_file_path)
         if os.path.exists(check_path):
             return True
     return False
@@ -72,6 +76,8 @@ if __name__ == "__main__":
     verbose = args.verbose
     exclude = args.exclude
     extensions = args.extension
+    mapping = {}
+
     if exclude is None:
         exclude = []
     if len(extensions) == 0:
@@ -96,12 +102,27 @@ if __name__ == "__main__":
             print("Called remove_common.py without a list of snaps, and no 'build-snaps' entry in the snapcraft.yaml file. Aborting.")
             sys.exit(1)
 
+    if args.map is not None:
+        for map in args.map:
+            elements = map.split(":")
+            if len(elements) != 2:
+                print(f"Error in mapping ${map}. It must be in the format snap:path")
+                sys.exit(1)
+            if elements[0] not in extensions:
+                print(f"Warning: The mapping '{map}' points to an undefined extension")
+            while elements[1][0] == '/':
+                elements[1] = elements[1][1:]
+            mapping[elements[0]] = elements[1]
+
     if verbose:
         print(f"Removing duplicates already in {extensions}")
-    folders.append(os.environ["CRAFT_STAGE"])
+    folders.append((os.environ["CRAFT_STAGE"], None))
     for snap in extensions:
-        folders.append(f"/snap/{snap}/current")
+        path = f"/snap/{snap}/current"
+        map_path = mapping[snap] if snap in mapping else None
+        folders.append((path, map_path))
 
+    print(folders)
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
     main(install_folder, folders, exclude, verbose)
