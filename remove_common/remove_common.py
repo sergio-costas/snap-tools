@@ -35,10 +35,9 @@ def get_snapcraft_yaml():
 def check_if_exists(folder_list, relative_file_path):
     """ Checks if an specific file does exist in any of the base paths"""
     for folder, map_path in folder_list:
-        if map_path is None:
-            check_path = os.path.join(folder, relative_file_path)
-        else:
-            check_path = os.path.join(folder, map_path, relative_file_path)
+        if (map_path is not None) and relative_file_path.starts_with(map_path):
+            relative_file_path = relative_file_path[len(map_path):]
+        check_path = os.path.join(folder, relative_file_path)
         if os.path.exists(check_path):
             return True
     return False
@@ -112,6 +111,8 @@ if __name__ == "__main__":
                 print(f"Warning: The mapping '{map}' points to an undefined extension")
             while elements[1][0] == '/':
                 elements[1] = elements[1][1:]
+            if elements[1][-1] != '/':
+                elements[1] += '/'
             mapping[elements[0]] = elements[1]
 
     if verbose:
