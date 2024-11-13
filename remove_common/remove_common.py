@@ -51,8 +51,6 @@ def check_if_exists(folder_list, relative_file_path):
 def main(base_folder, folder_list, exclude_list, verbose=False):
     """ Main function """
 
-    global global_excludes
-
     duplicated_bytes = 0
     for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
         if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
@@ -60,17 +58,13 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
         relative_file_path = full_file_path[len(base_folder):]
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
-        for exclude in global_excludes:
+        do_exclude = False
+        for exclude in exclude_list:
             if fnmatch.fnmatch(relative_file_path, exclude):
                 print(f"Excluding {relative_file_path} with rule {exclude}")
-                continue
-        if relative_file_path in exclude_list:
-            if verbose:
-                print(f"Excluding {relative_file_path}")
-            continue
-        if os.path.split(relative_file_path)[0] in exclude_list:
-            if verbose:
-                print(f"Excluding {relative_file_path}")
+                do_exclude = True
+                break
+        if do_exclude:
             continue
         if check_if_exists(folder_list, relative_file_path):
             if os.path.isfile(full_file_path):
@@ -89,8 +83,8 @@ if __name__ == "__main__":
     extensions = args.extension
     mapping = {}
 
-    if exclude is None:
-        exclude = []
+    if exclude is not None:
+        global_excludes += exclude
     if len(extensions) == 0:
         # get the extensions from the snapcraft file
         snapcraft_file = get_snapcraft_yaml()
@@ -140,4 +134,4 @@ if __name__ == "__main__":
 
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
-    main(install_folder, folders, exclude, verbose)
+    main(install_folder, folders, global_excludes, verbose)
