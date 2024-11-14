@@ -54,16 +54,15 @@ def check_if_exists(folder_list, relative_file_path):
     return False
 
 
-def main(base_folders, folder_list, exclude_list, verbose=False, quiet=True):
+def main(part_folder, base_folders, folder_list, exclude_list, verbose=False, quiet=True):
     """ Main function """
 
     duplicated_bytes = 0
     for base_folder in base_folders:
-        print(f"Removing from {base_folder}")
         for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
             if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
                 continue
-            relative_file_path = full_file_path[len(base_folder):]
+            relative_file_path = full_file_path[len(part_folder):]
             if relative_file_path[0] == '/':
                 relative_file_path = relative_file_path[1:]
             do_exclude = False
@@ -157,4 +156,4 @@ if __name__ == "__main__":
         for folder in args.folders:
             install_folders.append(os.path.join(part_folder, folder))
 
-    main(install_folders, folders, global_excludes, verbose, quiet)
+    main(part_folder, install_folders, folders, global_excludes, verbose, quiet)
