@@ -26,6 +26,7 @@ args = parser.parse_args()
 
 # specific case for themed icons
 global_excludes = ['usr/share/icons/*/index.theme']
+global_maps = {"gtk-common-themes": "usr"}
 
 def get_snapcraft_yaml():
     base_folder = os.environ['CRAFT_PROJECT_DIR']
@@ -72,7 +73,7 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
                 duplicated_bytes += os.stat(full_file_path).st_size
             os.remove(full_file_path)
             if verbose:
-                print(f"Removing duplicated file {relative_file_path}")
+                print(f"Removing duplicated file {relative_file_path} {full_file_path}")
     print(f"Removed {duplicated_bytes} bytes in duplicated files")
 
 
@@ -110,8 +111,9 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # specific case for gtk-common-themes
-    if "gtk-common-themes" in extensions:
-        mapping["gtk-common-themes"] ="usr"
+    for snap in global_maps:
+        if snap in extensions:
+            mapping[snap] = global_maps[snap]
 
     if args.map is not None:
         for map in args.map:
