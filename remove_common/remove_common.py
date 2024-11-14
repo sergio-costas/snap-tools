@@ -10,6 +10,7 @@ import sys
 import os
 import glob
 import argparse
+import fnmatch
 try:
     import yaml
 except:
@@ -22,6 +23,10 @@ parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folde
 parser.add_argument('-m', '--map', nargs='+', help="A list of snap_name:path pairs")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 args = parser.parse_args()
+
+# specific case for themed icons
+global_excludes = ['usr/share/icons/*/index.theme']
+global_maps = {"gtk-common-themes": "usr"}
 
 def get_snapcraft_yaml():
     base_folder = os.environ['CRAFT_PROJECT_DIR']
@@ -47,6 +52,7 @@ def check_if_exists(folder_list, relative_file_path):
 
 def main(base_folder, folder_list, exclude_list, verbose=False):
     """ Main function """
+
     duplicated_bytes = 0
     for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
         if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
@@ -54,20 +60,21 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
         relative_file_path = full_file_path[len(base_folder):]
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
-        if relative_file_path in exclude_list:
-            if verbose:
-                print(f"Excluding {relative_file_path}")
-            continue
-        if os.path.split(relative_file_path)[0] in exclude_list:
-            if verbose:
-                print(f"Excluding {relative_file_path}")
+        do_exclude = False
+        for exclude in exclude_list:
+            if fnmatch.fnmatch(relative_file_path, exclude):
+                if verbose:
+                    print(f"Excluding {relative_file_path} with rule {exclude}")
+                do_exclude = True
+                break
+        if do_exclude:
             continue
         if check_if_exists(folder_list, relative_file_path):
             if os.path.isfile(full_file_path):
                 duplicated_bytes += os.stat(full_file_path).st_size
             os.remove(full_file_path)
             if verbose:
-                print(f"Removing duplicated file {relative_file_path}")
+                print(f"Removing duplicated file {relative_file_path} {full_file_path}")
     print(f"Removed {duplicated_bytes} bytes in duplicated files")
 
 
@@ -79,8 +86,9 @@ if __name__ == "__main__":
     extensions = args.extension
     mapping = {}
 
-    if exclude is None:
-        exclude = []
+    if exclude is not None:
+        global_excludes += exclude
+
     if len(extensions) == 0:
         # get the extensions from the snapcraft file
         snapcraft_file = get_snapcraft_yaml()
@@ -103,6 +111,11 @@ if __name__ == "__main__":
             print("Called remove_common.py without a list of snaps, and no 'build-snaps' entry in the snapcraft.yaml file. Aborting.")
             sys.exit(1)
 
+    # specific case for gtk-common-themes
+    for snap in global_maps:
+        if snap in extensions:
+            mapping[snap] = global_maps[snap]
+
     if args.map is not None:
         for map in args.map:
             elements = map.split(":")
@@ -112,7 +125,7 @@ if __name__ == "__main__":
             if elements[0] not in extensions:
                 print(f"Warning: The mapping '{map}' points to an undefined extension")
             if elements[1] == '/':
-                print(f"Invalid mapping for {elements[0]}")
+                print(f"Invalid mapping for {elements[0]} (can't begin with '/')")
                 sys.exit(2)
             while elements[1][0] == '/':
                 elements[1] = elements[1][1:]
@@ -130,4 +143,4 @@ if __name__ == "__main__":
 
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
-    main(install_folder, folders, exclude, verbose)
+    main(install_folder, folders, global_excludes, verbose)
