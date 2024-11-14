@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser(prog="remove_common", description="An utility t
 parser.add_argument('extension', nargs='*', default=None)
 parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folders to exclude from checking")
 parser.add_argument('-m', '--map', nargs='+', help="A list of snap_name:path pairs")
+parser.add_argument('-f', '--folders', nargs='+', help="A list of paths to clean")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 parser.add_argument('-q', '--quiet', action='store_true', help="Don't show any message")
 args = parser.parse_args()
@@ -53,31 +54,32 @@ def check_if_exists(folder_list, relative_file_path):
     return False
 
 
-def main(base_folder, folder_list, exclude_list, verbose=False, quiet=True):
+def main(base_folders, folder_list, exclude_list, verbose=False, quiet=True):
     """ Main function """
 
     duplicated_bytes = 0
-    for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
-        if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
-            continue
-        relative_file_path = full_file_path[len(base_folder):]
-        if relative_file_path[0] == '/':
-            relative_file_path = relative_file_path[1:]
-        do_exclude = False
-        for exclude in exclude_list:
-            if fnmatch.fnmatch(relative_file_path, exclude):
+    for base_folder in base_folders:
+        for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
+            if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
+                continue
+            relative_file_path = full_file_path[len(base_folder):]
+            if relative_file_path[0] == '/':
+                relative_file_path = relative_file_path[1:]
+            do_exclude = False
+            for exclude in exclude_list:
+                if fnmatch.fnmatch(relative_file_path, exclude):
+                    if verbose:
+                        print(f"Excluding {relative_file_path} with rule {exclude}")
+                    do_exclude = True
+                    break
+            if do_exclude:
+                continue
+            if check_if_exists(folder_list, relative_file_path):
+                if os.path.isfile(full_file_path):
+                    duplicated_bytes += os.stat(full_file_path).st_size
+                os.remove(full_file_path)
                 if verbose:
-                    print(f"Excluding {relative_file_path} with rule {exclude}")
-                do_exclude = True
-                break
-        if do_exclude:
-            continue
-        if check_if_exists(folder_list, relative_file_path):
-            if os.path.isfile(full_file_path):
-                duplicated_bytes += os.stat(full_file_path).st_size
-            os.remove(full_file_path)
-            if verbose:
-                print(f"Removing duplicated file {relative_file_path} {full_file_path}")
+                    print(f"Removing duplicated file {relative_file_path} {full_file_path}")
     if not quiet:
         print(f"Removed {duplicated_bytes} bytes in duplicated files")
 
@@ -146,6 +148,9 @@ if __name__ == "__main__":
         map_path = mapping[snap] if snap in mapping else None
         folders.append((path, map_path))
 
-    install_folder = os.environ["CRAFT_PART_INSTALL"]
+    if args.folders is None:
+        install_folders = [os.environ["CRAFT_PART_INSTALL"]]
+    else:
+        install_folders = args.folders
 
-    main(install_folder, folders, global_excludes, verbose, quiet)
+    main(install_folders, folders, global_excludes, verbose, quiet)
