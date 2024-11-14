@@ -59,6 +59,7 @@ def main(base_folders, folder_list, exclude_list, verbose=False, quiet=True):
 
     duplicated_bytes = 0
     for base_folder in base_folders:
+        print(f"Removing from {base_folder}")
         for full_file_path in glob.glob(os.path.join(base_folder, "**/*"), recursive=True):
             if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
                 continue
