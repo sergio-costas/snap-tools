@@ -24,6 +24,7 @@ parser.add_argument('-m', '--map', nargs='+', help="A list of snap_name:path pai
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
 args = parser.parse_args()
 
+# specific case for themed icons
 global_excludes = ['usr/share/icons/*/index.theme']
 
 def get_snapcraft_yaml():
@@ -85,6 +86,7 @@ if __name__ == "__main__":
 
     if exclude is not None:
         global_excludes += exclude
+
     if len(extensions) == 0:
         # get the extensions from the snapcraft file
         snapcraft_file = get_snapcraft_yaml()
@@ -107,6 +109,10 @@ if __name__ == "__main__":
             print("Called remove_common.py without a list of snaps, and no 'build-snaps' entry in the snapcraft.yaml file. Aborting.")
             sys.exit(1)
 
+    # specific case for gtk-common-themes
+    if "gtk-common-themes" in extensions:
+        mapping["gtk-common-themes"] ="usr"
+
     if args.map is not None:
         for map in args.map:
             elements = map.split(":")
@@ -116,7 +122,7 @@ if __name__ == "__main__":
             if elements[0] not in extensions:
                 print(f"Warning: The mapping '{map}' points to an undefined extension")
             if elements[1] == '/':
-                print(f"Invalid mapping for {elements[0]}")
+                print(f"Invalid mapping for {elements[0]} (can't begin with '/')")
                 sys.exit(2)
             while elements[1][0] == '/':
                 elements[1] = elements[1][1:]

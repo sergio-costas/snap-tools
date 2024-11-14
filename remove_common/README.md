@@ -118,13 +118,16 @@ in the command line (this is a must to preserve compatibility with the old behav
 
 You can also add the *-v* argument to have *verbose* output of which files are being removed.
 
-Also, it is possible to add *-e path1 path2 ...* to exclude several paths from being checked.
+Also, it is possible to add *-e path1/\* path2/\*.so ...* to exclude several paths or
+files from being checked and/or removed.
 
 Finally, you can add *-m base_snap1:path_piece1 base_snap2:path_piece2* to compare files
 from *SNAP_BEING_BUILT/path_piece1/...* with */snap/base_snap1/...*, etc. This is useful
-for *gtk-common-themes*, because the themes are stored directly at *share/...* instead
-of *usr/share/...*, which prevents to find duplicated icons, sounds and themes. Instead,
-by adding *-m gtk-common-themes:usr*, this problem is fixed.
+for snaps like *gtk-common-themes*, because the themes are stored directly at *share/...*
+instead of *usr/share/...*, which prevents to find duplicated icons, sounds and themes.
+Instead, by adding *-m gtk-common-themes:usr*, this problem is fixed. In fact, due to the
+commonality of this case, *gtk-common-themes:usr* is added by default in the case that
+it is already in the list of snaps.
 
 Remember to add this in *each* part that has *stage-packages*. Parts without stage
 packages don't need this. The *build-snaps* statement only needs to be put once, so it's better
