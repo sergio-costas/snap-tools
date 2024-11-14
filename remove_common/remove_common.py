@@ -63,7 +63,8 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
         do_exclude = False
         for exclude in exclude_list:
             if fnmatch.fnmatch(relative_file_path, exclude):
-                print(f"Excluding {relative_file_path} with rule {exclude}")
+                if verbose:
+                    print(f"Excluding {relative_file_path} with rule {exclude}")
                 do_exclude = True
                 break
         if do_exclude:
