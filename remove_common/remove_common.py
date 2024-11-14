@@ -148,9 +148,12 @@ if __name__ == "__main__":
         map_path = mapping[snap] if snap in mapping else None
         folders.append((path, map_path))
 
+    part_folder = os.environ["CRAFT_PART_INSTALL"]
     if args.folders is None:
-        install_folders = [os.environ["CRAFT_PART_INSTALL"]]
+        install_folders = [part_folder]
     else:
-        install_folders = args.folders
+        install_folders = []
+        for folder in args.folders:
+            install_folders.append(os.path.join(part_folder, folder))
 
     main(install_folders, folders, global_excludes, verbose, quiet)
