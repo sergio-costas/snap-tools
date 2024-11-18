@@ -42,6 +42,8 @@ def check_if_exists(folder_list, relative_file_path):
     for folder, map_path in folder_list:
         if (map_path is not None) and relative_file_path.startswith(map_path):
             relative_file_path2 = relative_file_path[len(map_path):]
+            if relative_file_path2[0] == '/':
+                relative_file_path2 = relative_file_path2[1:]
         else:
             relative_file_path2 = relative_file_path
         check_path = os.path.join(folder, relative_file_path2)
