@@ -22,6 +22,7 @@ parser.add_argument('extension', nargs='*', default=None)
 parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folders to exclude from checking")
 parser.add_argument('-m', '--map', nargs='+', help="A list of snap_name:path pairs")
 parser.add_argument('-v', '--verbose', action='store_true', help="Show extra info")
+parser.add_argument('-q', '--quiet', action='store_true', help="Don't show any message")
 args = parser.parse_args()
 
 # specific case for themed icons
@@ -52,7 +53,7 @@ def check_if_exists(folder_list, relative_file_path):
     return False
 
 
-def main(base_folder, folder_list, exclude_list, verbose=False):
+def main(base_folder, folder_list, exclude_list, verbose=False, quiet=True):
     """ Main function """
 
     duplicated_bytes = 0
@@ -77,7 +78,8 @@ def main(base_folder, folder_list, exclude_list, verbose=False):
             os.remove(full_file_path)
             if verbose:
                 print(f"Removing duplicated file {relative_file_path} {full_file_path}")
-    print(f"Removed {duplicated_bytes} bytes in duplicated files")
+    if not quiet:
+        print(f"Removed {duplicated_bytes} bytes in duplicated files")
 
 
 if __name__ == "__main__":
@@ -145,4 +147,4 @@ if __name__ == "__main__":
 
     install_folder = os.environ["CRAFT_PART_INSTALL"]
 
-    main(install_folder, folders, global_excludes, verbose)
+    main(install_folder, folders, global_excludes, verbose, quiet)

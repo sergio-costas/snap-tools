@@ -80,6 +80,7 @@ class TestRemoveCommon(unittest.TestCase):
         b.create_file("usr/bin/a2", ONLY_IN_INSTALL)
         b.create_file("usr/bin/a3", IN_BOTH)
         b.remove_common()
+        self.assertFalse(b.file_exists("usr/bin/a1"))
         self.assertTrue(b.file_exists("usr/bin/a2"))
         self.assertFalse(b.file_exists("usr/bin/a3"))
 
@@ -90,5 +91,31 @@ class TestRemoveCommon(unittest.TestCase):
         b.remove_common()
         self.assertTrue(b.file_exists("usr/share/icons/hicolor/index.theme"))
         self.assertFalse(b.file_exists("usr/share/icons/hicolor/icon1"))
+
+    def test_keep_file(self):
+        b = base_system()
+        b.create_file("usr/bin/a1", IN_BOTH)
+        b.create_file("usr/bin/a2", IN_BOTH)
+        b.create_file("usr/bin/a3", IN_BOTH)
+        b.add_exclude("usr/bin/a2")
+        b.remove_common()
+        self.assertFalse(b.file_exists("usr/bin/a1"))
+        self.assertTrue(b.file_exists("usr/bin/a2"))
+        self.assertFalse(b.file_exists("usr/bin/a3"))
+
+    def test_keep_folder(self):
+        b = base_system()
+        b.create_file("usr/bin/a1", IN_BOTH)
+        b.create_file("usr/bin/a2", IN_BOTH)
+        b.create_file("usr/bin/more/a3", IN_BOTH)
+        b.create_file("usr/bin/more/another/a4", IN_BOTH)
+        b.add_exclude("usr/bin/*")
+        b.remove_common()
+        self.assertTrue(b.file_exists("usr/bin/a1"))
+        self.assertTrue(b.file_exists("usr/bin/a2"))
+        self.assertTrue(b.file_exists("usr/bin/more/a3"))
+        self.assertTrue(b.file_exists("usr/bin/more/another/a4"))
+
+
 if __name__ == '__main__':
     unittest.main()
