@@ -64,9 +64,8 @@ def main(base_folder, folder_list, exclude_list, verbose=False, quiet=True):
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
         do_exclude = False
-        base_path = os.path.split(relative_file_path)[0]
         for exclude in exclude_list:
-            if fnmatch.fnmatch(relative_file_path, exclude) or fnmatch.fnmatch(base_path, exclude):
+            if fnmatch.fnmatch(relative_file_path, exclude):
                 if verbose:
                     print(f"Excluding {relative_file_path} with rule {exclude}")
                 do_exclude = True

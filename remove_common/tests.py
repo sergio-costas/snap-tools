@@ -116,19 +116,6 @@ class TestRemoveCommon(unittest.TestCase):
         self.assertTrue(b.file_exists("usr/bin/more/a3"))
         self.assertTrue(b.file_exists("usr/bin/more/another/a4"))
 
-    def test_keep_folder2(self):
-        b = base_system()
-        b.create_file("usr/bin/a1", IN_BOTH)
-        b.create_file("usr/bin/a2", IN_BOTH)
-        b.create_file("usr/bin/more/a3", IN_BOTH)
-        b.create_file("usr/bin/more/another/a4", IN_BOTH)
-        b.add_exclude("usr/bin")
-        b.remove_common()
-        self.assertTrue(b.file_exists("usr/bin/a1"))
-        self.assertTrue(b.file_exists("usr/bin/a2"))
-        self.assertFalse(b.file_exists("usr/bin/more/a3"))
-        self.assertFalse(b.file_exists("usr/bin/more/another/a4"))
-
 
 if __name__ == '__main__':
     unittest.main()

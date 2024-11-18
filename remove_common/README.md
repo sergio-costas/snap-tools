@@ -117,12 +117,9 @@ entries in it, but it is possible to override this by manually putting the list 
 in the command line (this is a must to preserve compatibility with the old behavior).
 
 You can also add the *-v* argument to have *verbose* output of which files are being removed.
-Also, the *-q* argument will make it fully *quiet*.
 
 Also, it is possible to add *-e path1/\* path2/\*.so ...* to exclude several paths or
-files from being checked and/or removed. Using *-e path1/\** will exclude from checking
-any file and folder under *path1*; instead, using *-e path1* will exclude from checking
-any file under *path1*, but not any file inside a subfolder in *path1*.
+files from being checked and/or removed.
 
 Finally, you can add *-m base_snap1:path_piece1 base_snap2:path_piece2* to compare files
 from *SNAP_BEING_BUILT/path_piece1/...* with */snap/base_snap1/...*, etc. This is useful
