@@ -88,6 +88,7 @@ if __name__ == "__main__":
     verbose = args.verbose
     exclude = args.exclude
     extensions = args.extension
+    quiet = args.quiet
     mapping = {}
 
     if exclude is not None:
