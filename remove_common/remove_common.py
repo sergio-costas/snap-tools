@@ -38,7 +38,7 @@ def get_snapcraft_yaml():
             return None
     return snapcraft_file_path
 
-def check_if_exists(folder_list, relative_file_path):
+def check_if_exists(folder_list, relative_file_path, verbose):
     """ Checks if an specific file does exist in any of the base paths"""
     for folder, map_path in folder_list:
         if (map_path is not None) and relative_file_path.startswith(map_path):
@@ -49,6 +49,8 @@ def check_if_exists(folder_list, relative_file_path):
             relative_file_path2 = relative_file_path
         check_path = os.path.join(folder, relative_file_path2)
         if os.path.exists(check_path):
+            if verbose:
+                print(f"The path {relative_file_path} has been found inside {folder} with map {map_path}: {relative_file_path2}")
             return True
     return False
 
@@ -72,7 +74,7 @@ def main(base_folder, folder_list, exclude_list, verbose=False, quiet=True):
                 break
         if do_exclude:
             continue
-        if check_if_exists(folder_list, relative_file_path):
+        if check_if_exists(folder_list, relative_file_path, verbose):
             if os.path.isfile(full_file_path):
                 duplicated_bytes += os.stat(full_file_path).st_size
             os.remove(full_file_path)
