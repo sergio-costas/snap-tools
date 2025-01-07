@@ -19,7 +19,7 @@ except:
 
 parser = argparse.ArgumentParser(prog="remove_common", description="An utility to remove from snaps files that are already available in extensions")
 parser.add_argument('extension', nargs='*', default=[])
-parser.add_argument('-e', '--exclude', nargs='+', help="A list of file and folders to exclude from checking")
+parser.add_argument('-e', '--exclude', nargs='+', help="A list of files and directories to exclude from checking")
 parser.add_argument('-m', '--map', nargs='+', default={}, help="A list of snap_name:path pairs")
 parser.add_argument('-v', '--verbose', action='store_true', default=False, help="Show extra info")
 parser.add_argument('-q', '--quiet', action='store_true', default=False, help="Don't show any message")
@@ -138,8 +138,8 @@ def generate_mappings(predefined_mappings, cmdline_mappings):
     return mappings
 
 
-def generate_folders(extensions, mappings):
-    """Generates the list of folders from the list of extensions
+def generate_extensions_paths(extensions, mappings):
+    """Generates the list of extensions paths from the list of extensions
 
     This list has the paths of each extension used, to know where to search
     for duplicates. Also, it contains the corresponding map for each path.
@@ -169,11 +169,11 @@ def generate_folders(extensions, mappings):
     return folders
 
 
-def check_if_exists(folder_list, relative_file_path, verbose):
+def check_if_exists(extensions_paths, relative_file_path, verbose):
     """Checks if an specific file does exist in any of the base paths.
 
     Checks if the specified file at `relative_file_path` does exist in
-    any of the paths included in the `folder_list` array, taking into
+    any of the paths included in the `extensions_paths` array, taking into
     account the mapping specified.
 
     Mapping is paramount for some extension snaps like gtk-common-themes.
@@ -185,7 +185,7 @@ def check_if_exists(folder_list, relative_file_path, verbose):
 
     Parameters
     ----------
-    folder_list : array of tuples with two elements
+    extensions_paths : array of tuples with two elements
         An array with tuples containing each one a string with the root
         path for one of the extensions snap, and, if required, another
         string with the mapping for that snap (or None if no mapping is
@@ -201,7 +201,7 @@ def check_if_exists(folder_list, relative_file_path, verbose):
         specified snaps, and false if it doesn't exist in any of them.
     """
     # Checks if an specific file does exist in any of the base paths
-    for folder, map_path in folder_list:
+    for folder, map_path in extensions_paths:
         if (map_path is not None) and relative_file_path.startswith(map_path):
             relative_file_path2 = relative_file_path[len(map_path):]
             if relative_file_path2[0] == '/':
@@ -216,24 +216,27 @@ def check_if_exists(folder_list, relative_file_path, verbose):
     return False
 
 
-def main(duplicates_folder, folder_list, exclude_list, verbose=False, quiet=True):
+def main(snap_folder, extensions_paths, exclude_list=[], verbose=False, quiet=True):
     """Main function
 
-    Searches each file in 'duplicates_folder' inside each path in 'folder_list'
+    Searches each file in 'snap_folder' inside each path in 'extensions_paths'
     to check if it is already available there, deleting it in that case, unless
     it matches any of the rules in 'exclude_list'.
 
     The check is done based only on the relative path and file name relative to
-    'duplicates_folder', searching that inside each path in 'folder_list', although
+    'snap_folder', searching that inside each path in 'extensions_paths', although
     taking into account the mapping.
 
     Parameters
     ----------
-    duplicates_folder : string
+    snap_folder : string
         The path of the folder where the staged .deb have been uncompressed (usually
         CRAFT_PART_INSTALL)
-    folder_list : array of strings
-        A list with paths where to search for duplicates
+    extensions_paths : array of tuples with two elements
+        An array with tuples containing each one a string with the root
+        path for one of the extensions snap, and, if required, another
+        string with the mapping for that snap (or None if no mapping is
+        required for that snap).
     exclude_list : array of strings
         A list of fnmatch rules for excluding files and/or paths
     verbose : bool, optional
@@ -243,10 +246,10 @@ def main(duplicates_folder, folder_list, exclude_list, verbose=False, quiet=True
     """
 
     duplicated_bytes = 0
-    for full_file_path in glob.glob(os.path.join(duplicates_folder, "**/*"), recursive=True):
+    for full_file_path in glob.glob(os.path.join(snap_folder, "**/*"), recursive=True):
         if not os.path.isfile(full_file_path) and not os.path.islink(full_file_path):
             continue
-        relative_file_path = full_file_path[len(duplicates_folder):]
+        relative_file_path = full_file_path[len(snap_folder):]
         if relative_file_path[0] == '/':
             relative_file_path = relative_file_path[1:]
         do_exclude = False
@@ -258,7 +261,7 @@ def main(duplicates_folder, folder_list, exclude_list, verbose=False, quiet=True
                 break
         if do_exclude:
             continue
-        if check_if_exists(folder_list, relative_file_path, verbose):
+        if check_if_exists(extensions_paths, relative_file_path, verbose):
             if os.path.isfile(full_file_path):
                 duplicated_bytes += os.stat(full_file_path).st_size
             os.remove(full_file_path)
@@ -288,12 +291,12 @@ if __name__ == "__main__":
     if verbose:
         print(f"Removing duplicates already in {extensions}")
 
-    folders = generate_folders(extensions, mappings)
-    folders.append((os.environ["CRAFT_STAGE"], None))
+    extensions_paths = generate_extensions_paths(extensions, mappings)
+    extensions_paths.append((os.environ["CRAFT_STAGE"], None))
 
     # This is the folder where to check for duplicates that are already
     # in other snaps, or in the stage because they were built in other
     # parts.
-    duplicates_folder = os.environ["CRAFT_PART_INSTALL"]
+    snap_folder = os.environ["CRAFT_PART_INSTALL"]
 
-    main(duplicates_folder, folders, global_excludes, verbose, quiet)
+    main(snap_folder, extensions_paths, global_excludes, verbose, quiet)
