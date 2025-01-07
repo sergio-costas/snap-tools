@@ -20,7 +20,7 @@ except:
 parser = argparse.ArgumentParser(prog="remove_common", description="An utility to remove from snaps files that are already available in extensions")
 parser.add_argument('extension', nargs='*', default=[])
 parser.add_argument('-e', '--exclude', nargs='+', help="A list of files and directories to exclude from checking")
-parser.add_argument('-m', '--map', nargs='+', default={}, help="A list of snap_name:path pairs")
+parser.add_argument('-m', '--map', nargs='+', default=[], help="A list of snap_name:path pairs")
 parser.add_argument('-v', '--verbose', action='store_true', default=False, help="Show extra info")
 parser.add_argument('-q', '--quiet', action='store_true', default=False, help="Don't show any message")
 args = parser.parse_args()
