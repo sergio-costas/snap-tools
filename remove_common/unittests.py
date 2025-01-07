@@ -57,7 +57,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert not os.path.exists(final_files[0])
         self._delete_files()
 
@@ -67,7 +67,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert not os.path.exists(final_files[1])
         self._delete_files()
 
@@ -77,7 +77,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert os.path.exists(final_files[2])
         self._delete_files()
 
@@ -87,7 +87,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert not os.path.exists(final_files[3])
         self._delete_files()
 
@@ -97,7 +97,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert os.path.exists(final_files[4])
         self._delete_files()
 
@@ -107,7 +107,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert not os.path.exists(final_files[5])
         self._delete_files()
 
@@ -117,7 +117,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert not os.path.exists(final_files[6])
         self._delete_files()
 
@@ -127,7 +127,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert os.path.exists(final_files[7])
         self._delete_files()
 
@@ -137,7 +137,7 @@ class TestRemoveCommon(unittest.TestCase):
             and checks that only the duplicated files are removed. """
 
         final_files = self._create_files()
-        remove_common.main("/tmp/tests/stage", ["/tmp/tests/core22", "/tmp/tests/gnome-42-2204"])
+        remove_common.main("/tmp/tests/stage", [("/tmp/tests/core22", None), ("/tmp/tests/gnome-42-2204", None)])
         assert os.path.exists(final_files[8])
         self._delete_files()
 
