@@ -19,3 +19,7 @@ jobs:
           cd remove_common
           ./unittests.py
           ./tests.py
+      - name: Test doc_checker
+        run: |
+          cd test_doc_checker
+          ./tests.py
