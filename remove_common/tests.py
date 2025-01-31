@@ -153,7 +153,7 @@ class TestRemoveCommon(unittest.TestCase):
         self.assertRaises(SyntaxError, remove_common.generate_mappings, ["snap1:usr:a"], [])
 
     def test_generate_folders(self):
-        folders = remove_common.generate_folders(["gtk-common-themes", "core24"], {"gtk-common-themes": "usr/"})
+        folders = remove_common.generate_extensions_paths(["gtk-common-themes", "core24"], {"gtk-common-themes": "usr/"})
         self.assertEqual(len(folders), 2)
         for entry in folders:
             self.assertEqual(len(entry), 2)
